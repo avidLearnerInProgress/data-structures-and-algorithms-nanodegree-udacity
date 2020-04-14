@@ -11,9 +11,9 @@
 
 2. [Project 2](/P1-show-me-data-structures)
 
-    - [x] [Problem 1](/P1-show-me-data-structures/01_Problem1.py)
-    - [ ] [Problem 2]()
-    - [ ] [Problem 3]()
+    - [x] [Problem 1](/P1-show-me-data-structures/01_problem1_lrucache.py)
+    - [x] [Problem 2](/P1-show-me-data-structures/02_problem2_filerecursion.py)
+    - [x] [Problem 3](/P1-show-me-data-structures/01_problem3_huffmancoding.py)
     - [ ] [Problem 4]()
     - [ ] [Problem 5]()
     - [ ] [Problem 6]()
