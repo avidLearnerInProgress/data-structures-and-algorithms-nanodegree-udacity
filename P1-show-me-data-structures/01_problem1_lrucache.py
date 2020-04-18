@@ -1,4 +1,3 @@
-## Implement LRU cache
 '''
 Least Recently Used cache
 The lookup operation (i.e., get()) and put() / set() is supposed to be fast for a cache memory.

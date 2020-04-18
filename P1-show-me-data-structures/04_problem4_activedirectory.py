@@ -1,4 +1,3 @@
-#%% Imports and function declaration
 class Group(object):
     def __init__(self, _name):
         self.name = _name
@@ -19,8 +18,7 @@ class Group(object):
 
     def get_name(self):
         return self.name
-
-
+		
 def is_user_in_group(user, group):
     """
     Return True if user is in the group, False otherwise.
@@ -28,45 +26,36 @@ def is_user_in_group(user, group):
       user(str): user name/id
       group(class:Group): group to check user membership against
     """
-
-    if user in group.get_users():  # User found
+    if user in group.get_users():
         return True
-    else:
-        if len(group.get_groups()) == 0:  # Keep searching
-            return False
-        else:
-            for sub_group in group.get_groups():
-                found = is_user_in_group(user, sub_group)
-
-                if found:
-                    return True
+    
+    for group in group.get_groups():
+        return is_user_in_group(user, group)
+    
     return False
-
-
-#%% Testing official
-# Testing preparation
+	
 parent = Group("parent")
+not_parent = Group("not_parent")
 child = Group("child")
 sub_child = Group("subchild")
 
-sub_child_user = "sub_child_user"
-sub_child.add_user(sub_child_user)
+sub_child.add_user("sub_child_user_1")
+sub_child.add_user("sub_child_user_2")
+
+child.add_user("child_user_1")
+child.add_user("child_user_2")
+
+parent.add_user("parent_1")
+parent.add_user("parent_2")
+
+not_parent.add_user("not_parent_1")
 
 child.add_group(sub_child)
 parent.add_group(child)
 
-# Normal Cases:
-print('Normal Cases:')
-print(is_user_in_group(user='parent_user', group=parent))
-# False
-print(is_user_in_group(user='child_user', group=parent))
-# False
-print(is_user_in_group(user='sub_child_user', group=parent), '\n')
-# True
-
-# Edge Cases:
-print('Edge Cases:')
-print(is_user_in_group(user='', group=parent))
-# False
-print(is_user_in_group(user='', group=child))
-# False
+print ("Pass" if  (True == is_user_in_group("child_user_1", parent)) else "Fail")
+print ("Pass" if  (False == is_user_in_group("child_orphan_1", parent)) else "Fail")
+print ("Pass" if  (True == is_user_in_group("child_user_1", child)) else "Fail")
+print ("Pass" if  (False == is_user_in_group("child", child)) else "Fail")
+print ("Pass" if  (True == is_user_in_group("sub_child_user_1", child)) else "Fail")
+print ("Pass" if  (False == is_user_in_group("sub_child_user_1", not_parent)) else "Fail")
