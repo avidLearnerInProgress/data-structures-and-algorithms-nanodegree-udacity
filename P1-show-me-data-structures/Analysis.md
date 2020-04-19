@@ -21,14 +21,13 @@
 
 ## Problem 3
 
-* Time Complexity - O(nlogn) where n = number of paths appended to the list
-* Space Complexity - O(n) for each dictionary and O(|V|) for DFS
+* Time Complexity - O(n). See design consideration
+* Space Complexity - O(n) Stores binary codes, priority queues and frequencies.
 
 * Design considerations -
-    1. Implemented everything that the sample step mentions. First I found the frequencies of the characters, then sorted them as per frequencies, created nodes starting with the least frequent characters to build a tree and finally traverse the tree to generate the codes. From these generated codes, we encoded the message.
-    2. To decode, I had to do a bit by bit tree traversal by going left or right at every iteration. This was performed until there was a single bit or char.
-    3. There are two dicts maintained, one for frequency and another for codes. To traverse tree we performed a DFS.
-    4. Sorting is used which brings the time complexity to O(nlogn)
+    1. Dictionaries are used to store the data as it allows for O(1) access. The priority queue is used along with Node having a frequency parameter. This provides easy access to frequencies associated with each letter. It also allowed in popping the least frequent character easily from the tree.
+    2. Binary codes are stored in Tree so there is no need to return anything.
+    3. In terms of time complexity, first we run through entire data to determine frequencies. Then, we build the priority queue. Next we build the tree and lastly we create compressed and decompressed data. So in every case, we run through entire data only once each time.
 
 ## Problem 4
 

@@ -1,5 +1,4 @@
 import sys
-from operator import itemgetter
 
 '''
 Huffman Coding
@@ -20,181 +19,233 @@ Decode the text from its compressed form.
 You then will need to create encoding, decoding, and sizing schemas.
 '''
 
-class Node(object):
-    def __init__(self):
-        self.value, self.left, self.right = None, None, None
+class Node:
+    def __init__(self, letter=None, frequency=None, left_child=None, right_child=None):
+        self.letter = letter
+        self.frequency = frequency
+        self.left_child = left_child
+        self.right_child = right_child
+        self.binary_code = ''
 
-    def set_value(self, value):
-        self.value = value
-    
-    def get_value(self):
-        return self.value
-    
-    def set_left_children(self, children):
-        self.left = children
-        
-    def set_right_children(self, children):
-        self.right = children
-        
-    def get_left_children(self):
-        return self.left
-    
-    def get_right_children(self):
-        return self.right
-    
-    def has_left_children(self):
-        return self.left != None
-    
-    def has_right_children(self):
-        return self.right != None
-
-    def __repr__(self):
-        return f"Node: ({self.get_value()}, {self.has_left_children()}, {self.has_right_children()})"
-    
     def __str__(self):
-        return f"Node: ({self.get_value()}, {self.has_left_children()}, {self.has_right_children()})"
+        s = 'Node(' + self.letter + ', ' + str(self.frequency) + ')'
+        return s
+
+class Tree:
+    def __init__(self, node, single_character):
+        self.root = node
+        self.single_character = single_character
+        self.binary_codes = dict()
+
+    def create_binary_codes(self, node):
+        """
+        Inorder traversal for creation of binary nodes
+        :params: root
+        :return: None
+        """
+
+        # If data consists of only single character
+        if self.single_character:
+            node.binary_code = '0'
+            self.binary_codes[node.letter] = node.binary_code
+            return
+
+        # append 1 to binary_code if right subtree, append 0 to binary_code if left subtree 
+        # If node has left child, update binary code and traverse left subtree
+        if node.left_child is not None:
+            node.left_child.binary_code = node.binary_code + '0'
+            self.create_binary_codes(node.left_child)
+
+        # If node has right child, update binary code and traverse right subtree
+        if node.right_child is not None:
+            node.right_child.binary_code = node.binary_code + '1'
+            self.create_binary_codes(node.right_child)
+
+        #Append nodes in dictionary with their binary code
+        if node.letter is not None and node.letter != '':
+            self.binary_codes[node.letter] = node.binary_code
 
 
-class Tree(object):
+class PriorityQueue:
     def __init__(self):
-        self.root = None
+        self.queue = []  # Queue of Nodes
+        self.length = 0
 
-    def set_root(self, value):
-        self.root = value
-        
-    def get_root(self):
-        return self.root
+    def is_empty(self):
+        return self.length == 0
+
+    def put(self, node):
+        self.queue.append(node)
+        self.length += 1
+
+    def pop_least_frequent(self):
+        least_frequent_node = self.queue[0]  # Least frequent node
+        index = 0  # Index of least frequent node
+
+        # Find least frequent node
+        for i in range(self.length):
+            if self.queue[i].frequency < least_frequent_node.frequency:
+                least_frequent_node = self.queue[i]
+                index = i
+
+        # Decrement length of queue
+        self.length -= 1
+
+        # Remove node
+        del self.queue[index]
+
+        # Return node
+        return least_frequent_node
+
+    def __str__(self):
+        s = ''
+        for node in self.queue:
+            s += node.__str__() + ', '
+        return s
 
 
-#global variables
-hfrequency = dict({})
-htree = Tree()
-hcode = dict({})
+def huffman_encoding(data):
+    """
+    Function encodes data using huffman coding. The data on the huffman leaves results in the huffman encoding
+    :params: String to encode
+    :return: encoded_data: Encoded data
+    :return: binary_tree: Binary tree with characters on leaves
+    """
 
-def generate_frequencies(data):
-    for letter in data:
-        if letter in hfrequency:
-            hfrequency[letter] += 1
-        else:
-            hfrequency[letter] = 1
-    return hfrequency
+    # Edge case
+    if data is None or data == '':
+        return None, None
 
-def build_htree(char_freqs):    
-    #create nodes beforehand for tree
-    char_values = char_freqs
-    root_node = None
-    while len(char_values) > 1:
-        c1, f1 = char_values[-1]
-        c2, f2 = char_values[-2]
-        char_values = char_values[:-2]
-        new_node = Node()
-        new_node.set_left_children(c1)
-        new_node.set_right_children(c2)
-        char_values.append((new_node, f1 + f2))
-        char_values.sort(key = itemgetter(1), reverse = True)
-        root_node = new_node
-    htree.set_root(root_node)    
-    return root_node
-
-def traverse_htree(node, code=''):
-    if type(node) is str:
-        return {node: code}        
-    left_node = node.get_left_children()
-    right_node = node.get_right_children()
-    hcode.update(traverse_htree(left_node, code + "0"))
-    hcode.update(traverse_htree(right_node, code + "1"))
-    return hcode
-
-def process(data):
-    #generate frequencies and sort
-    freq_list = list(generate_frequencies(data).items())
-    freq_list.sort(key = itemgetter(1), reverse = True)
-
-    #build tree bottom-up and create codes
-    traverse_htree(build_htree(freq_list))
+    print("data: ", data)
     
-def hencoding(data):
-    if len(data) == 0:
-        return ("There was no message encoded as original string is empty!", None)
-    encoded_string = ''
-    process(data)
-    #use lookup map to encode instead of traversing tree
+    # Create dictionary for frequencies {character : frequency}
+    frequencies = dict()
     for char in data:
-        encoded_string += hcode[char]
-    return encoded_string, htree
+        if char in frequencies:
+            frequencies[char] += 1
+        else:
+            frequencies[char] = 1
+    print("frequencies: ", frequencies)
 
-def decode_message(data, node):
-    if type(node) is str:
-        return data, node
-    if data[0] == "0" and node.has_left_children():
-        return decode_message(data[1:], node.get_left_children())
-    elif data[0] == "1" and node.has_right_children():
-        return decode_message(data[1:], node.get_right_children())
+    # Build Priority Queue by iterating through data
+    priority_queue = PriorityQueue()
+    for char in frequencies:
+        # Build Nodes using (character --> frequency) dictionary
+        node = Node(char, frequencies[char])
 
-def hdecoding(data, htree):
-    decoded_msg = '' 
-    #traverse tree for each char
-    while len(data) > 0:
-        data, char = decode_message(data, htree.get_root())
-        decoded_msg += char
-    return decoded_msg
+        # Insert Nodes into a Priority Queue
+        priority_queue.put(node)
+    print("priority_queue:", priority_queue)
 
-if __name__ == "__main__":
-    codes = {}
-
-    #Test case 1
-    sentence = "Quick brown fox jumped over the lazy dog"
-    print(f"The size of the data is: {sys.getsizeof(sentence)}\n")
-    print(f"The content of the data is: {sentence}\n")
-    
-    encoded_data, tree = hencoding(sentence)
-    print("The size of the encoded data is: {}\n".format(sys.getsizeof(int(encoded_data, base=2))))
-    print("The content of the encoded data is: {}\n".format(encoded_data))
-    
-    decoded_data = hdecoding(encoded_data, tree)
-    print ("The size of the decoded data is: {}\n".format(sys.getsizeof(decoded_data)))
-    print ("The content of the encoded data is: {}\n".format(decoded_data))
-    
-
-    # Test case 2
-    another_sentence = "Yet another lllllllllllllllllloooooooooooooooooooooonnnnnnnnnnnnnnnnnggggggggggggggggg string"
-    print ("The size of the data is: {}\n".format(sys.getsizeof(another_sentence)))
-    print ("The content of the data is: {}\n".format(another_sentence))
-
-    encoded_data, tree = hencoding(another_sentence)
-    print ("The size of the encoded data is: {}\n".format(sys.getsizeof(int(encoded_data, base=2))))
-    print ("The content of the encoded data is: {}\n".format(encoded_data))
-
-    decoded_data = hdecoding(encoded_data, tree)
-    print ("The size of the decoded data is: {}\n".format(sys.getsizeof(decoded_data)))
-    print ("The content of the encoded data is: {}\n".format(decoded_data))
-    
-    # Test case 3
-    yet_another_sentence = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    print ("The size of the data is: {}\n".format(sys.getsizeof(yet_another_sentence)))
-    print ("The content of the data is: {}\n".format(yet_another_sentence))
-
-    encoded_data, tree = hencoding(yet_another_sentence)
-    print ("The size of the encoded data is: {}\n".format(sys.getsizeof(int(encoded_data, base=2))))
-    print ("The content of the encoded data is: {}\n".format(encoded_data))
-
-    decoded_data = hdecoding(encoded_data, tree)
-    print ("The size of the decoded data is: {}\n".format(sys.getsizeof(decoded_data)))
-    print ("The content of the encoded data is: {}\n".format(decoded_data))
-    
-    # Test case 4
-    yet_one_last_string = ""
-    print ("The size of the data is: {}\n".format(sys.getsizeof(yet_one_last_string)))
-    print ("The content of the data is: {}\n".format(yet_one_last_string))
-    encoded_data, tree = hencoding(yet_one_last_string)
-
-    if tree is not None:
-        print ("The size of the encoded data is: {}\n".format(sys.getsizeof(int(encoded_data, base=2))))
-        print ("The content of the encoded data is: {}\n".format(encoded_data))
+    # Build the Huffman Tree from Priority Queue
+    while priority_queue.length > 1:
         
-        decoded_data = hdecoding(encoded_data, tree)
+        # Pop 2 nodes with least frequency count
+        node1 = priority_queue.pop_least_frequent()
+        node2 = priority_queue.pop_least_frequent()
 
-        print ("The size of the decoded data is: {}\n".format(sys.getsizeof(decoded_data)))
-        print ("The content of the encoded data is: {}\n".format(decoded_data))
+        # Create a parent node with: sum of frequencies of 2 nodes, left and right child which are the 2 nodes
+        parent_node_frequency = node1.frequency + node2.frequency
+        parent_node = Node('', parent_node_frequency, node1, node2)
+
+        # Push parent node back into Priority Queue
+        priority_queue.put(parent_node)
+
+    # Finally, the priority queue will have 1 node that represents the root of the tree
+    print("priority_queue after creating tree:", priority_queue)
+
+    # Create (character --> binary code) dictionary
+    # Assign a binary code to each letter (shorter codes for more frequent letters)
+    # When we hit a leaf node that holds a letter, we return that binary code and assign it to that letter
+    # e.g. 0111 is "left right right right", so binary_codes[letter] = "0111"
+    
+    binary_codes = {}
+    root = priority_queue.queue[0]  # Find the root
+    if data == len(data) * data[0]:  # Check if data consists of a single unique character e.g 'AAAAA'
+        single_character = True
     else:
-        print(encoded_data)
+        single_character = False
+    binary_tree = Tree(root, single_character)  # Create binary tree
+    binary_tree.create_binary_codes(root)  # Create binary codes
+    binary_codes = binary_tree.binary_codes
+
+    print("binary_codes:", binary_codes)
+    print("binary_tree:", binary_tree)
+
+    # Encode text into its compressed form (sequence of binary codes that were assigned to each letter)
+    # Read input and access (character --> binary code) dictionary
+    # E.g. binary_codes[first_letter] + binary_codes[second_letter] + ...
+    compressed_form = ''
+    for letter in data:
+        compressed_form += binary_codes[letter]
+    print("compressed_form:", compressed_form)
+    print()
+
+    return compressed_form, binary_tree
+
+
+def huffman_decoding(data, tree):
+    """
+    Decodes data on a tree using Huffman Decoding
+    :param data:
+    :param tree:
+    :return:
+    """
+
+    decoded_data = ''
+    root = tree.root
+    node = root  # Node used for traverse tree
+    index = 0  # Index used to traverse data
+
+    # If encoded data only consists of one unique character
+    if tree.single_character:
+        decoded_data = root.letter * root.frequency
+        return decoded_data
+
+    # Iterate over data
+    while index != len(data):
+        # print(decoded_data, node, index)
+
+        # If current bit is 0
+        if data[index] == '0':
+            # Move to the left node
+            node = node.left_child
+
+        # Elif current bit is 1
+        elif data[index] == '1':
+            # Move to the right node
+            node = node.right_child
+
+        # If we hit a leaf node, append the letter to decoded_data and restart at the root
+        if node.left_child is None and node.right_child is None:
+            decoded_data += node.letter
+            node = root
+
+        index += 1
+    return decoded_data
+
+def test_function(sentence):
+    encoded_data, tree = huffman_encoding(sentence)
+
+    if encoded_data is not None:
+        print("The size of the data is: {}\n".format(sys.getsizeof(sentence)))
+        print("The content of the data is: {}\n".format(sentence))
+
+        print("The size of the encoded data is: {}\n".format(sys.getsizeof(int(encoded_data, base=2))))
+        print("The content of the encoded data is: {}\n".format(encoded_data))
+
+        decoded_data = huffman_decoding(encoded_data, tree)
+
+        print("The size of the decoded data is: {}\n".format(sys.getsizeof(decoded_data)))
+        print("The content of the decoded data is: {}\n".format(decoded_data))
+    print('\n\n\n')
+
+
+# Edge test cases
+test_function('')
+test_function('A')
+test_function('AA')
+test_function('AAAAA')
+
+# General test case
+test_function("The bird is the word")
