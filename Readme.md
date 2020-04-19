@@ -13,7 +13,8 @@
 
     - [x] [Problem 1](/P1-show-me-data-structures/01_problem1_lrucache.py)
     - [x] [Problem 2](/P1-show-me-data-structures/02_problem2_filerecursion.py)
-    - [x] [Problem 3](/P1-show-me-data-structures/01_problem3_huffmancoding.py)
-    - [ ] [Problem 4]()
-    - [ ] [Problem 5]()
-    - [ ] [Problem 6]()
+    - [x] [Problem 3](/P1-show-me-data-structures/03_problem3_huffmancoding.py)
+    - [x] [Problem 4](/P1-show-me-data-structures/04_problem4_activedirectory.py)
+    - [x] [Problem 5](/P1-show-me-data-structures/05_problem5_blockchain.py)
+    - [x] [Problem 6](/P1-show-me-data-structures/06_problem6_unionintersect.py)
+    - [x] [Analysis](/P1-show-me-data-structures/Analysis.md)
