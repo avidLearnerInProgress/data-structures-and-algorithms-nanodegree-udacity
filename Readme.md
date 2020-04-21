@@ -27,5 +27,5 @@
     - [x] [Problem 4](P2-problems_vs_algorithms/04_problem4_dutch_national.py)
     - [x] [Problem 5](P2-problems_vs_algorithms/05_problem5_autocomplete.py)
     - [x] [Problem 6](P2-problems_vs_algorithms/06_problem6_unsorted.py)
-    - [x] [Problem 6](P2-problems_vs_algorithms/06_problem6_request_routing.py)
+    - [x] [Problem 7](P2-problems_vs_algorithms/06_problem6_request_routing.py)
     - [x] [Analysis](P2-problems_vs_algorithms/Analysis.md)
