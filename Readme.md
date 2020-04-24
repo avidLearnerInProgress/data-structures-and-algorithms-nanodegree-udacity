@@ -29,3 +29,8 @@
     - [x] [Problem 6](P2-problems_vs_algorithms/06_problem6_unsorted.py)
     - [x] [Problem 7](P2-problems_vs_algorithms/06_problem6_request_routing.py)
     - [x] [Analysis](P2-problems_vs_algorithms/Analysis.md)
+
+4. [Project 4](/P3-route_planner)
+    - [x] [Project Notebook](P3-route_planner/project_notebook.ipynb)
+    - [x] [Student code](P3-route_planner/student_code.py)
+    - [x] [Test](P3-route_planner/test.py)
